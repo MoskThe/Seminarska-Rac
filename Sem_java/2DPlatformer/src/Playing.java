@@ -3,14 +3,21 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import enteties.Player;
 import utilz.Const;
 import utilz.LoadSave;
 
-public class Playing implements Statemethods{
+public class Playing implements Statemethods {
         private Player player;
         private LevelHandler levelHandler;
         private Game game;
@@ -26,23 +33,32 @@ public class Playing implements Statemethods{
         private int lvlTileWide = levelHandler.GetLvlData()[0].length;
         private int maxTilesOffset = lvlTileWide - Const.GameStats.TILES_WIDTH;
         private int maxLvlOffset = maxTilesOffset * Const.GameStats.TILE_SIZE;
-
+        
         private BufferedImage Background;
 
-        public Playing(Game game) {
+        //sounds
+        AudioInputStream music;
+        public Clip BitMusic;
+        
+        public Playing(Game game) throws IOException, UnsupportedAudioFileException, LineUnavailableException{
                 this.game = game;
                 initClasses();
 
                 Background = LoadSave.LoadImg(LoadSave.PLAYING_BACKGROUND);
-                try {
-                writer = new FileWriter("2DPlatformer/src/HighScore.txt");
-                buffer = new BufferedWriter(writer);
-                }catch (IOException e){
 
-                }
+                music = AudioSystem.getAudioInputStream(new File("2DPlatformer/src/assets/Music.wav"));
+                BitMusic = AudioSystem.getClip();
+                BitMusic.open(music);
+                //try {
+                //writer = new FileWriter("2DPlatformer/src/HighScore.txt");
+                //buffer = new BufferedWriter(writer);
+                //}catch (IOException e){
+
+                //
+
         }
 
-        public void initClasses() {
+        public void initClasses() throws IOException, UnsupportedAudioFileException, LineUnavailableException{
                 levelHandler = new LevelHandler(game);
                 player = new Player(100, 300, (int)(32*Const.GameStats.SCALE), (int)(32*Const.GameStats.SCALE));
                 player.loadLvlData(levelHandler.GetLevel().lvlData);
@@ -89,14 +105,15 @@ public class Playing implements Statemethods{
                 double timeInSec = (double)(timePlaying)/1000000000;
                 int sec = (int)timeInSec;
                 int sec00 = (int)(timeInSec*100 - sec*100);
-                try {
-                        buffer.write("" + sec + "." + sec00 + " sec");
-                        System.out.println("" + sec + "." + sec00 + " sec");
-                } catch(IOException e){}
+
+                System.out.println("" + sec + "." + sec00 + " sec");
                 
                 resetPlaying();
                 resetTimer();
 
+                BitMusic.setMicrosecondPosition(0);
+                BitMusic.stop();
+                game.getMenu().MenuSong.loop(Clip.LOOP_CONTINUOUSLY);
                 Gamestate.state = Gamestate.MENU;
         }
 
@@ -150,7 +167,7 @@ public class Playing implements Statemethods{
                         case KeyEvent.VK_D: player.right = true;break;
                         case KeyEvent.VK_SPACE: player.jump = true;break;
                         case KeyEvent.VK_SHIFT: player.dash = true;break;
-                        case KeyEvent.VK_ESCAPE: resetPlaying(); resetTimer();Gamestate.state = Gamestate.MENU;break;
+                        case KeyEvent.VK_ESCAPE: resetPlaying(); resetTimer(); BitMusic.setMicrosecondPosition(0); BitMusic.stop();game.getMenu().MenuSong.loop(Clip.LOOP_CONTINUOUSLY);;Gamestate.state = Gamestate.MENU;break;
                 }
         }
 

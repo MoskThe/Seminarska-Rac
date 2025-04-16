@@ -8,9 +8,16 @@ import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Float;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import static utilz.HelpMethods.canMoveHere;
 import static utilz.HelpMethods.MoveNextToWall;
 import static utilz.HelpMethods.MovePlayerToFloor;
@@ -48,11 +55,23 @@ public class Player extends Entity{
     public boolean died = false;
 
     private int[][] lvlData;
+    //sounds
+    AudioInputStream Sounds;
+    public Clip jumpSound;
+    public Clip dashSound;
 
-    public Player(float x, float y, int width, int height) {
+    public Player(float x, float y, int width, int height) throws IOException, UnsupportedAudioFileException, LineUnavailableException{
         super(x,y, width, height);
         loadAnimations();
         innitRect(x, y, 15*Const.GameStats.SCALE, 27*Const.GameStats.SCALE);
+
+        Sounds = AudioSystem.getAudioInputStream(new File("2DPlatformer/src/assets/jump.wav"));
+        jumpSound = AudioSystem.getClip();
+        jumpSound.open(Sounds);
+
+        Sounds = AudioSystem.getAudioInputStream(new File("2DPlatformer/src/assets/Blade.wav"));
+        dashSound = AudioSystem.getClip();
+        dashSound.open(Sounds);
     }
 
     public void update() {
@@ -167,6 +186,10 @@ public class Player extends Entity{
                 airSpeed += dashTotal;
             }
             dashCooldown = false;
+
+            dashSound.stop();
+            dashSound.setFramePosition(0);
+            dashSound.start();
         }
     }
 
@@ -175,6 +198,10 @@ public class Player extends Entity{
         else{
             inAir = true;
             airSpeed = jumpSpeed;
+            
+            jumpSound.stop();
+            jumpSound.setFramePosition(0);
+            jumpSound.start();
         }
     }
 

@@ -1,10 +1,14 @@
 import java.awt.Dimension;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JPanel;
 
 import enteties.Player;
 import utilz.Const;
 
 import java.awt.Graphics;
+import java.io.IOException;
 
 public class Game implements Runnable {
     private Window window;
@@ -26,7 +30,7 @@ public class Game implements Runnable {
     public static final int PANEL_WIDTH = TILE_SIZE * TILES_WIDTH;
     public static final int PANEL_HEIGHT = TILE_SIZE * TILES_HEIGHT; */
 
-    public Game() {
+    public Game() throws IOException, UnsupportedAudioFileException, LineUnavailableException {
         menu = new Menu(this);
         playing = new Playing(this);
 

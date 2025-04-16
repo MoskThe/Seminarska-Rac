@@ -1,9 +1,12 @@
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+
+import javax.sound.sampled.LineUnavailableException;
 
 public interface Statemethods {
-    public void update();
+    public void update() throws LineUnavailableException, IOException;
     public void draw(Graphics g);
     public void mouseClicked(MouseEvent e);
     public void mousePressed(MouseEvent e);
